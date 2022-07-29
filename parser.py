@@ -40,9 +40,8 @@ class Parser():
                     time = i
         figure = soup.find('figure')
         img = BeautifulSoup(str(figure), 'html.parser')
-        content = soup.find("div", {"class":"contentstyle__StyledWrapper-g5cdrh-0 gCDWPA"})
-        p = BeautifulSoup(str(content), 'html.parser').find_all('p')
-
+        # content = soup.find("div", {"class":"contentstyle__StyledWrapper-g5cdrh-0 gCDWPA"})
+        p = soup.find('h2').contents
         try :
             picture = img.find('img').get('src')
         except :
@@ -54,9 +53,8 @@ class Parser():
             myresult = mycursor.fetchall()
             if(len(myresult)==0): 
                 sql = "INSERT INTO news (link, title, picture, time, content) VALUES (%s, %s, %s, %s, %s)"
-                val = (link, soup.title.text, picture, time, str(p))
+                val = (link, soup.title.text, picture, time, p[0])
                 mycursor.execute(sql, val)
                 mydb.commit()
                 print(mycursor.rowcount, "record inserted.")
-        except :
-            print(sql)
+        except Exception as e: print(e)
