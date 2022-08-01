@@ -15,7 +15,7 @@ mycursor = mydb.cursor()
 
 class Parser():
     session = HTMLSession()
-    coindesk = session.get(config.COINDESK_MARKET)
+    coindesk = session.get(config.COINDESK)
     soup = BeautifulSoup(coindesk.text, 'html.parser')
     sections = soup.find_all("section")
     list_article = []
@@ -23,12 +23,11 @@ class Parser():
     for section in sections:
         link = BeautifulSoup(str(section), 'html.parser').find_all("a")
         for href in link:
-            if(str(href.get('href')).startswith('/'+config.COINDESK_MARKET.split('/')[-1]) 
-            and len(str(href.get('href')))>len(config.COINDESK_MARKET.split('/')[-1])+2): 
+            if(str(href.get('href')).startswith(("/author", "/policy", "/newsletters","/podcasts", "https", "/learn")) == False
+            and len(str(href.get('href')))>len(config.COINDESK.split('/')[-1])+10): 
                 list_article.append(config.COINDESK + href.get('href')) 
     for link in set(list_article):
         article = session.get(link)
-        # print(link)
         soup = BeautifulSoup(article.text, 'html.parser')
         article = soup.find('article')
         span_list = BeautifulSoup(str(article), 'html.parser').find_all("span", {"class":"typography__StyledTypography-owin6q-0 fUOSEs"})
@@ -40,13 +39,11 @@ class Parser():
                     time = i
         figure = soup.find('figure')
         img = BeautifulSoup(str(figure), 'html.parser')
-        # content = soup.find("div", {"class":"contentstyle__StyledWrapper-g5cdrh-0 gCDWPA"})
         p = soup.find('h2').contents
         try :
             picture = img.find('img').get('src')
         except :
             picture = ''
-
         try:
             sql = 'SELECT * FROM news WHERE title ="'+soup.title.text+'"'
             mycursor.execute(sql)
@@ -57,4 +54,6 @@ class Parser():
                 mycursor.execute(sql, val)
                 mydb.commit()
                 print(mycursor.rowcount, "record inserted.")
-        except Exception as e: print(e)
+        except Exception as e: 
+            print(link)
+            print(e)
