@@ -46,21 +46,24 @@ class Parser():
                         time = i.replace("Aug", "8").replace(" ", "/",1).replace(", ", "/",1)
         figure = soup.find('figure')
         img = BeautifulSoup(str(figure), 'html.parser')
-        p = soup.find('h2').contents
-        try :
-            picture = img.find('img').get('src')
-        except :
-            picture = ''
         try:
-            sql = 'SELECT * FROM news WHERE title ="'+soup.title.text+'"'
-            mycursor.execute(sql)
-            myresult = mycursor.fetchall()
-            if(len(myresult)==0):
-                sql = "INSERT INTO news (link, title, picture, time, content) VALUES (%s, %s, %s, %s, %s)"
-                val = (link, soup.title.text, picture, time, p[0])
-                mycursor.execute(sql, val)
-                mydb.commit()
-                print(mycursor.rowcount, "record inserted.")
-        except Exception as e:
-            print(link)
-            print(e)
+            p = soup.find('h2').contents
+            try :
+                picture = img.find('img').get('src')
+            except :
+                picture = ''
+            try:
+                sql = 'SELECT * FROM news WHERE title ="'+soup.title.text+'"'
+                mycursor.execute(sql)
+                myresult = mycursor.fetchall()
+                if(len(myresult)==0):
+                    sql = "INSERT INTO news (link, title, picture, time, content) VALUES (%s, %s, %s, %s, %s)"
+                    val = (link, soup.title.text, picture, time, p[0])
+                    mycursor.execute(sql, val)
+                    mydb.commit()
+                    print(mycursor.rowcount, "record inserted.")
+            except Exception as e:
+                print(link)
+                print(e)
+        except:
+            pass
