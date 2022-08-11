@@ -5,7 +5,7 @@ import mysql.connector
 
 mydb = mysql.connector.connect(
     host="localhost",
-    port='33006',
+    port='3306',
     user="maria",
     password="123",
     database='nest',
@@ -20,33 +20,32 @@ class Parser():
     soup = BeautifulSoup(coindesk.text, 'html.parser')
     sections = soup.find_all("section")
     list_article = []
-
-    for section in sections:
-        link = BeautifulSoup(str(section), 'html.parser').find_all("a")
-        for href in link:
-            if (str(href.get('href')).startswith(
-                ("/author", "/policy", "/newsletters", "/podcasts", "https",
-                 "/learn", "/reports")) == False and len(str(href.get('href')))
-                    > len(config.COINDESK.split('/')[-1]) + 10):
-                list_article.append(config.COINDESK + href.get('href'))
-    for link in set(list_article):
-        article = session.get(link)
-        soup = BeautifulSoup(article.text, 'html.parser')
-        article = soup.find('article')
-        span_list = BeautifulSoup(str(article), 'html.parser').find_all(
-            "span", {"class": "typography__StyledTypography-owin6q-0 fUOSEs"})
-        time = []
-        time = ''
-        for span in span_list:
-            for i in span.contents:
-                if (len(i) > 27):
-                    if (i.startswith('Jul')):
-                        time = i.replace("Jul", "7").replace(" ", "/",1).replace(", ", "/",1)
-                    elif (i.startswith('Aug')):
-                        time = i.replace("Aug", "8").replace(" ", "/",1).replace(", ", "/",1)
-        figure = soup.find('figure')
-        img = BeautifulSoup(str(figure), 'html.parser')
-        try:
+    try:
+        for section in sections:
+            link = BeautifulSoup(str(section), 'html.parser').find_all("a")
+            for href in link:
+                if (str(href.get('href')).startswith(
+                    ("/author", "/policy", "/newsletters", "/podcasts", "https",
+                    "/learn", "/reports")) == False and len(str(href.get('href')))
+                        > len(config.COINDESK.split('/')[-1]) + 10):
+                    list_article.append(config.COINDESK + href.get('href'))
+        for link in set(list_article):
+            article = session.get(link)
+            soup = BeautifulSoup(article.text, 'html.parser')
+            article = soup.find('article')
+            span_list = BeautifulSoup(str(article), 'html.parser').find_all(
+                "span", {"class": "typography__StyledTypography-owin6q-0 fUOSEs"})
+            time = []
+            time = ''
+            for span in span_list:
+                for i in span.contents:
+                    if (len(i) > 27):
+                        if (i.startswith('Jul')):
+                            time = i.replace("Jul", "7").replace(" ", "/",1).replace(", ", "/",1)
+                        elif (i.startswith('Aug')):
+                            time = i.replace("Aug", "8").replace(" ", "/",1).replace(", ", "/",1)
+            figure = soup.find('figure')
+            img = BeautifulSoup(str(figure), 'html.parser')
             p = soup.find('h2').contents
             try :
                 picture = img.find('img').get('src')
@@ -65,5 +64,5 @@ class Parser():
             except Exception as e:
                 print(link)
                 print(e)
-        except:
-            pass
+    except:
+        pass
